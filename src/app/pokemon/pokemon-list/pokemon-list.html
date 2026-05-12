@@ -1,0 +1,92 @@
+<div class="flex items-center justify-between mb-4 gap-4">
+  <label class="input w-5/6">
+    <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <g
+        stroke-linejoin="round"
+        stroke-linecap="round"
+        stroke-width="2.5"
+        fill="none"
+        stroke="currentColor"
+      >
+        <circle cx="11" cy="11" r="8"></circle>
+        <path d="m21 21-4.3-4.3"></path>
+      </g>
+    </svg>
+    <input
+      id="search"
+      type="search"
+      name="searchTerm"
+      placeholder="Search"
+      #searchField
+      [value]="searchTerm()"
+      (input)="searchTerm.set(searchField.value)"
+    />
+  </label>
+  <button class="btn btn-primary flex-1" routerLink="/pokemons/add">
+    Ajouter un Pokemon
+  </button>
+</div>
+
+<div class="flex items-center gap-2 mb-4">
+  <button
+    class="btn btn-sm w-40"
+    [class.btn-primary]="!typeSelected()"
+    (click)="filterByType(null)"
+  >
+    All
+  </button>
+  @for (type of pokemonService.getPokemonTypeList(); track type) {
+    <button
+      class="btn btn-sm"
+      [class.btn-secondary]="typeSelected() === type"
+      (click)="filterByType(type)"
+    >
+      {{ type }}
+    </button>
+  }
+</div>
+
+<section class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 max-h-[70vh] overflow-y-auto">
+  @if (loading()) {
+    @for (_ of [1, 2, 3, 4, 5, 6]; track $index) {
+      <article class="card card-side card-border bg-base-100 shadow-md">
+        <figure class="px-4 bg-base-200">
+          <div class="skeleton h-28 w-28"></div>
+        </figure>
+        <div class="card-body pt-3">
+          <div class="skeleton h-6 w-3/4"></div>
+          <div class="flex flex-col items-start gap-2">
+            <div class="skeleton h-4 w-1/2"></div>
+            <div class="skeleton h-4 w-1/2"></div>
+          </div>
+        </div>
+      </article>
+    }
+  } @else {
+    @for (pokemon of pokemonListFiltered(); track pokemon.id) {
+      <article
+        class="card card-side card-border bg-base-100 shadow-md cursor-pointer"
+        appPokemonBorder
+        [pokemonType]="pokemon.types[0]"
+        [routerLink]="['/pokemons', pokemon.id]"
+      >
+        <figure class="px-4 bg-base-200">
+          <img class="h-28 w-28 object-contain" [src]="pokemon.picture" [alt]="pokemon.name" />
+        </figure>
+
+        <div class="card-body pt-3">
+          <h2 class="card-title">{{ pokemon.name }}</h2>
+
+          <div class="flex flex-col items-start gap-2">
+            <span>Points de vie: {{ pokemon.life }}</span>
+            <span>Dégâts: {{ pokemon.damage }}</span>
+          </div>
+        </div>
+      </article>
+    } @empty {
+      <div class="col-span-full alert alert-primary">
+        <span>No Pokemon found.</span>
+      </div>
+    }
+  }
+</section>

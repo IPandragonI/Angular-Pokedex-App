@@ -1,0 +1,227 @@
+<section class="w-3/4 m-auto">
+  <article class="card card-side card-border bg-base-100 shadow-md">
+    <figure class="px-4 bg-base-200 flex-1">
+      <img
+        class="h-52 w-52 object-contain"
+        [src]="form.get('picture')?.value !== '' ? form.get('picture')?.value : 'https://www.pokepedia.fr/images/thumb/e/e2/Pok%C3%A9_Ball-RS.png/200px-Pok%C3%A9_Ball-RS.png'"
+        [alt]="form.get('name')?.value"
+      />
+    </figure>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="w-3/5">
+      <div class="card-body pt-3">
+        <h2 class="card-title">Ajouter un Pokemon</h2>
+
+        <div class="overflow-x-auto">
+          <table class="table">
+            <tbody>
+              <tr>
+                <th>Nom</th>
+                <td>
+                  <input
+                    formControlName="name"
+                    type="text"
+                    class="input input-bordered w-full"
+                    [value]="form.get('name')?.value"
+                    placeholder="Nom du pokemon"
+                    [class.input-error]="
+                      pokemonName.invalid && (pokemonName.dirty || pokemonName.touched)
+                    "
+                  />
+                  @if (
+                    pokemonName.hasError('required') && (pokemonName.dirty || pokemonName.touched)
+                  ) {
+                    <p class="text-error mt-1 text-sm">Le nom est requis.</p>
+                  }
+                  @if (
+                    pokemonName.hasError('minlength') && (pokemonName.dirty || pokemonName.touched)
+                  ) {
+                    <p class="text-error mt-1 text-sm">
+                      Le nom doit comporter au moins
+                      {{ pokemonName.getError('minlength').requiredLength }} caractères.
+                    </p>
+                  }
+                  @if (
+                    pokemonName.hasError('maxlength') && (pokemonName.dirty || pokemonName.touched)
+                  ) {
+                    <p class="text-error mt-1 text-sm">
+                      Le nom doit comporter au maximum
+                      {{ pokemonName.getError('maxlength').requiredLength }} caractères.
+                    </p>
+                  }
+                  @if (
+                    pokemonName.hasError('pattern') && (pokemonName.dirty || pokemonName.touched)
+                  ) {
+                    <p class="text-error mt-1 text-sm">
+                      Le nom doit commencer par une majuscule et ne peut contenir que des lettres,
+                      des chiffres et des espaces.
+                    </p>
+                  }
+                </td>
+              </tr>
+              <tr>
+                <th>Points de vie</th>
+                <td>
+                  <div class="flex items-center">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-secondary mr-2"
+                      [disabled]="pokemonLife.value <= POKEMON_RULES.MIN_LIFE"
+                      (click)="decrementLife()"
+                    >
+                      -
+                    </button>
+                    <input
+                      id="life"
+                      formControlName="life"
+                      type="number"
+                      class="input input-bordered w-full"
+                      [value]="pokemonLife.value"
+                      placeholder="Points de vie"
+                      readonly
+                    />
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-secondary ml-2"
+                      [disabled]="pokemonLife.value >= POKEMON_RULES.MAX_LIFE"
+                      (click)="incrementLife()"
+                    >
+                      +
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <th>Dégâts</th>
+                <td>
+                  <div class="flex items-center">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-secondary mr-2"
+                      [disabled]="pokemonDamage.value <= POKEMON_RULES.MIN_DAMAGE"
+                      (click)="decrementDamage()"
+                    >
+                      -
+                    </button>
+                    <input
+                      id="damage"
+                      formControlName="damage"
+                      type="number"
+                      class="input input-bordered w-1/2"
+                      [value]="pokemonDamage.value"
+                      placeholder="Dégâts"
+                      readonly
+                    />
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-secondary ml-2"
+                      [disabled]="pokemonDamage.value >= POKEMON_RULES.MAX_DAMAGE"
+                      (click)="incrementDamage()"
+                    >
+                      +
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <th>Types</th>
+                <td>
+                  @if (
+                    pokemonTypeList.hasError('required') &&
+                    (pokemonTypeList.dirty || pokemonTypeList.touched)
+                  ) {
+                    <p class="text-error mt-1 text-sm">Au moins un type doit être sélectionné.</p>
+                  }
+                  @if (
+                    pokemonTypeList.hasError('maxlength') &&
+                    (pokemonTypeList.dirty || pokemonTypeList.touched)
+                  ) {
+                    <p class="text-error mt-1 text-sm">
+                      Un maximum de
+                      {{ pokemonTypeList.getError('maxlength').requiredLength }} types peuvent être
+                      sélectionnés.
+                    </p>
+                  }
+                  @if (
+                    pokemonTypeList.hasError('minlength') &&
+                    (pokemonTypeList.dirty || pokemonTypeList.touched)
+                  ) {
+                    <p class="text-error mt-1 text-sm">
+                      Au moins {{ pokemonTypeList.getError('minlength').requiredLength }} type doit
+                      être sélectionné.
+                    </p>
+                  }
+                  <div class="flex flex-wrap gap-y-2">
+                    @for (type of pokemonTypeList.controls; track type; let index = $index) {
+                      <button
+                        type="button"
+                        class="badge mr-4 flex items-center cursor-pointer"
+                        [style.background-color]="pokemonService.getPokemonColor(type.value)"
+                        [class]="pokemonService.getBadgeTextColor(type.value)"
+                        (click)="
+                          pokemonTypeList.removeAt(index);
+                          pokemonTypeList.markAsDirty();
+                          pokemonTypeList.markAsTouched()
+                        "
+                      >
+                        {{ type.value }}
+                        <span
+                          title="Supprimer ce type"
+                          [class]="pokemonService.getBadgeTextColor(type.value)"
+                        >
+                          x
+                        </span>
+                      </button>
+                    }
+                  </div>
+                  <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 mt-4">
+                    @for (type of pokemonService.getPokemonTypeList(); track type) {
+                      <label class="flex items-center mr-4">
+                        <input
+                          #checkbox
+                          (change)="onPokemonTypeChange(type, checkbox.checked)"
+                          [checked]="isPokemonTypeSelected(type)"
+                          type="checkbox"
+                          class="checkbox checkbox-secondary"
+                          [value]="type"
+                          [id]="type"
+                        />
+                        <span class="ml-2">{{ type }}</span>
+                      </label>
+                    }
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <th>Image</th>
+                <td>
+                  <input
+                    formControlName="picture"
+                    type="text"
+                    class="input input-bordered w-full"
+                    [value]="form.get('picture')?.value"
+                    placeholder="URL de l'image"
+                    [class.input-error]="
+                      pokemonPicture.invalid && (pokemonPicture.dirty || pokemonPicture.touched)
+                    "
+                  />
+                  @if (
+                    pokemonPicture.hasError('required') &&
+                    (pokemonPicture.dirty || pokemonPicture.touched)
+                  ) {
+                    <p class="text-error mt-1 text-sm">L'URL de l'image est requise.</p>
+                  }
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card-actions justify-end mt-4">
+          <button type="button" class="btn btn-ghost btn-sm" (click)="onCancel()">Annuler</button>
+          <button class="btn btn-accent btn-sm" [disabled]="form.invalid">Sauvegarder</button>
+        </div>
+      </div>
+    </form>
+  </article>
+</section>

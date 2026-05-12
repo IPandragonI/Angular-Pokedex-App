@@ -1,0 +1,84 @@
+<section class="flex items-center justify-center">
+  <div class="w-full max-w-md">
+    <article class="card card-border bg-base-100 shadow-2xl">
+      <div class="card-body">
+        <div class="text-center mb-8">
+          <h1 class="text-4xl font-bold mb-2">
+            <span class="text-primary">Poké</span><span class="text-secondary">dex</span>
+          </h1>
+        </div>
+
+        <form (submit)="onSubmit($event)" class="space-y-6">
+          @if (error()) {
+            <div class="alert alert-error">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                class="stroke-current shrink-0 w-6 h-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M10 14l-2-2m0 0l-2-2m2 2l2-2m-2 2l-2 2m8-8l2 2m0 0l2 2m-2-2l-2 2m2-2l2-2"
+                ></path>
+              </svg>
+              <div class="text-sm font-medium">{{ error() }}</div>
+              <button type="button" class="btn btn-ghost btn-xs" (click)="error.set(null)">
+                ✕
+              </button>
+            </div>
+          }
+
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-semibold">Nom d'utilisateur</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Entrez votre nom"
+              class="input input-bordered input-primary focus:input-primary w-full"
+              #nameField
+              autocomplete="username"
+              [value]="name()"
+              (input)="name.set($event.target.value)"
+              [disabled]="loading()"
+              required
+            />
+          </div>
+
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-semibold">Mot de passe</span>
+            </label>
+            <input
+              type="password"
+              placeholder="Entrez votre mot de passe"
+              class="input input-bordered input-primary focus:input-primary w-full"
+              #passwordField
+              autocomplete="current-password"
+              [value]="password()"
+              (input)="password.set($event.target.value)"
+              [disabled]="loading()"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-primary w-full font-semibold text-lg"
+            [disabled]="loading()"
+          >
+            @if (loading()) {
+              <span class="loading loading-spinner loading-sm"></span>
+              Connexion en cours...
+            } @else {
+              Se connecter
+            }
+          </button>
+        </form>
+      </div>
+    </article>
+  </div>
+</section>
